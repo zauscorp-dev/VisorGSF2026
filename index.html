@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --pt-blue: #0050a0; --pt-navy: #003a73; --pt-red: #e31e24;
@@ -34,6 +35,9 @@ b { font-weight: 600; }
 .day.today { opacity: 1; background: #fff; color: var(--pt-navy); border-color: #fff; font-weight: 600; }
 .corte { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 10px; background: rgba(255,255,255,.12); padding: 4px 12px; border-radius: 999px; }
 .corte::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 0 3px rgba(61,220,132,.25); }
+.dl { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; background: #fff; color: var(--pt-navy); font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 999px; border: 0; cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.dl:hover { background: #eaf2fb; }
+.dl svg { width: 16px; height: 16px; }
 .ring { width: 170px; height: 170px; }
 .ring svg { width: 100%; height: 100%; display: block; }
 @media (max-width: 640px) { .hero { grid-template-columns: 1fr; padding: 24px; } .ring { margin: 0 auto; } }
@@ -128,7 +132,8 @@ tbody tr:hover td { background: #f1f6fc; }
         <span class="day" data-day="2026-11-06">Vie 6 nov</span>
         <span class="day" data-day="2026-11-07">Sáb 7 nov</span>
       </div>
-      <div class="corte">Último pedido registrado: <span id="corte">—</span></div>
+      <div class="corte">Último pedido registrado: <span id="corte">—</span></div><br>
+      <button class="dl" id="descargar" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>Descargar captura en Excel</button>
     </div>
     <div class="ring" id="ring"></div>
   </header>
@@ -286,7 +291,7 @@ tbody tr:hover td { background: #f1f6fc; }
     const negocios = nombres.concat(extra).map((negocio) => { const v = d3.sum(ok.filter((l) => l.negocio === negocio), (l) => l.valor); return {negocio, valor: v, participacion: totalOk ? v / totalOk : 0}; });
     const vendedores = d3.rollups(pedidos, (v) => ({distribuidor: v[0].distribuidor, pedidos: v.length, clientes: new Set(v.map((p) => p.cliente_id)).size, valor: d3.sum(v, (p) => p.valor)}), (p) => p.vendedor)
       .map(([vendedor, t]) => ({vendedor, ...t})).sort((a, b) => b.valor - a.valor);
-    return {tot, avance, pedidos, porDia, porHora, porAsesor, marcas, negocios, vendedores, sinCruce};
+    return {lineas, tot, avance, pedidos, porDia, porHora, porAsesor, marcas, negocios, vendedores, sinCruce};
   }
 
   // ---------- Dibujo ----------
@@ -488,6 +493,36 @@ tbody tr:hover td { background: #f1f6fc; }
     render();
   }
 
+  function descargar() {
+    if (!M || !window.XLSX) return;
+    const asesor = new Map(M.avance.map((r) => [r.distribuidor, r.asesor]));
+    const det = M.lineas.slice().sort((a, b) => b.fecha_hora.localeCompare(a.fecha_hora)).map((l) => ({
+      'Fecha': l.dia, 'Hora': l.fecha_hora.slice(11), 'Distribuidor': l.dist || l.distribuidor, 'Asesor Pintuco': asesor.get(l.dist) || '',
+      'Vendedor': l.vendedor, 'Cliente ferretero': l.cliente, 'Ciudad': l.ciudad, 'SKU': l.sku, 'Producto': l.producto,
+      'Marca': l.marca, 'Negocio': l.negocio, 'Cantidad': l.cantidad, 'Valor (COP)': l.valor}));
+    const res = M.avance.slice().sort((a, b) => b.captura - a.captura).map((r) => ({
+      'Distribuidor': r.distribuidor, 'Asesor Pintuco': r.asesor, 'Cuota (COP)': r.cuota, 'Captura (COP)': r.captura,
+      'Cumplimiento': Math.round(r.cumplimiento * 10000) / 10000, 'Faltante (COP)': r.faltante, 'Pedidos': r.pedidos}));
+    const t = M.tot;
+    res.push({'Distribuidor': 'TOTAL', 'Asesor Pintuco': '', 'Cuota (COP)': t.cuota, 'Captura (COP)': t.captura, 'Cumplimiento': Math.round(t.cumplimiento * 10000) / 10000, 'Faltante (COP)': t.faltante, 'Pedidos': t.pedidos});
+    const wb = XLSX.utils.book_new();
+    const fmt = (ws, cols, money, pctCol) => {
+      ws['!cols'] = cols.map((w) => ({wch: w}));
+      const rg = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = 1; R <= rg.e.r; R++) {
+        money.forEach((C) => { const c = ws[XLSX.utils.encode_cell({r: R, c: C})]; if (c) c.z = '"$"#,##0'; });
+        if (pctCol != null) { const c = ws[XLSX.utils.encode_cell({r: R, c: pctCol})]; if (c) c.z = '0.0%'; }
+      }
+      ws['!autofilter'] = {ref: ws['!ref']};
+    };
+    const ws1 = XLSX.utils.json_to_sheet(res); fmt(ws1, [44, 20, 16, 16, 13, 16, 9], [2, 3, 5], 4);
+    const ws2 = XLSX.utils.json_to_sheet(det); fmt(ws2, [11, 9, 40, 20, 30, 34, 14, 10, 46, 26, 14, 9, 14], [12]);
+    XLSX.utils.book_append_sheet(wb, ws1, 'Resumen distribuidores');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Detalle captura');
+    const corte = (t.ultimo || '').replace(/[-: ]/g, '').slice(0, 12);
+    XLSX.writeFile(wb, 'GSF2026_captura_corte_' + (corte || 'sin_datos') + '.xlsx');
+  }
+  $('descargar').addEventListener('click', descargar);
   document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => { diaSel = b.dataset.dia; chartHora(); }));
   $('buscar').addEventListener('input', (e) => { filtro = e.target.value; feed(); });
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render, 150); });
