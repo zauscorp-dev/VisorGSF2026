@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(RAIZ, 'data')
-url = os.environ.get('DATALAKE_URL')
+url = re.sub(r'\s+', '', os.environ.get('DATALAKE_URL') or '')  # quita espacios o saltos de línea pegados por error
 if not url:
     sys.exit('Falta el secret DATALAKE_URL')
 
