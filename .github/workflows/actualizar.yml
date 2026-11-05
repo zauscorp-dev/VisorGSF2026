@@ -2,9 +2,13 @@ name: Actualizar captura GSF 2026
 
 on:
   schedule:
-    # A los :15 de cada hora entre el 5 y el 8 de noviembre (UTC). Cubre 8 a. m. – 8 p. m. de Bogotá.
-    - cron: '15 * 5-8 11 *'
+    # Cada 20 minutos (a los :07, :27 y :47) del 5 al 8 de noviembre (UTC). GitHub a veces salta
+    # corridas en horas pico; con varias por hora, el dato nuevo entra aunque se pierda alguna.
+    - cron: '7,27,47 * 5-8 11 *'
   workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['.github/workflows/actualizar.yml', 'scripts/actualizar.py']
 
 permissions:
   contents: write
@@ -29,10 +33,10 @@ jobs:
         run: |
           git config user.name "gsf-bot"
           git config user.email "gsf-bot@users.noreply.github.com"
-          git add data/captura.csv data/meta.json
-          if git diff --cached --quiet; then
-            echo "Sin cambios"
+          if git diff --quiet -- data/captura.csv; then
+            echo "Sin pedidos nuevos: no se publica nada"
           else
+            git add data/captura.csv data/meta.json
             git commit -m "Captura GSF $(TZ=America/Bogota date '+%Y-%m-%d %H:%M')"
             git push
           fi
