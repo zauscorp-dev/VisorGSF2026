@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Visor Gran Salón Ferretero 2026 · Pintuco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<style>
+:root {
+  --pt-blue: #0050a0; --pt-navy: #003a73; --pt-red: #e31e24;
+  --fg: #1d2330; --muted: #6b7280; --bg: #f4f6f9; --panel: #fff; --line: #e3e7ee; --grid: #eceff4; --axis: #c9d0db; --soft: #b8c2d0;
+  --ok: #1f9d55; --warn: #e0a106; --bad: #d64545;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; --serif: 'Source Serif 4', Georgia, serif;
+  --r: 10px; --gap: 16px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 14px; -webkit-font-smoothing: antialiased; }
+.gsf { max-width: 1280px; margin: 0 auto; padding: clamp(12px, 3vw, 32px); display: flex; flex-direction: column; gap: 22px; }
+b { font-weight: 600; }
+.hero { position: relative; overflow: hidden; border-radius: 18px; background: linear-gradient(125deg, var(--pt-navy) 0%, var(--pt-blue) 62%, #1a6fc0 100%); color: #fff; padding: 32px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 32px; align-items: center; }
+.hero::after { content: ''; position: absolute; right: -80px; top: -80px; width: 260px; height: 260px; border-radius: 50%; border: 36px solid rgba(255,255,255,.06); pointer-events: none; }
+.hero::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--pt-red); }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin: 0 0 4px; }
+.title { font-family: var(--serif); font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.05; margin: 0; }
+.sub { margin: 6px 0 0; opacity: .85; }
+.take { margin: 16px 0 0; font-size: 17px; line-height: 1.45; max-width: 52ch; }
+.take b { border-bottom: 2px solid rgba(255,255,255,.35); }
+.days { display: flex; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.day { font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); opacity: .75; }
+.day.past { opacity: .55; text-decoration: line-through; }
+.day.today { opacity: 1; background: #fff; color: var(--pt-navy); border-color: #fff; font-weight: 600; }
+.corte { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 10px; background: rgba(255,255,255,.12); padding: 4px 12px; border-radius: 999px; }
+.corte::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 0 3px rgba(61,220,132,.25); }
+.ring { width: 170px; height: 170px; }
+.ring svg { width: 100%; height: 100%; display: block; }
+@media (max-width: 640px) { .hero { grid-template-columns: 1fr; padding: 24px; } .ring { margin: 0 auto; } }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--gap); }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 18px; display: flex; flex-direction: column; gap: 4px; position: relative; overflow: hidden; }
+.kpi::before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 3px; background: var(--pt-blue); }
+.kpi.accent::before { background: var(--pt-red); }
+.kpi-label { font-size: 12px; color: var(--muted); }
+.kpi-val { font-family: var(--serif); font-size: 28px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kpi-note { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.meter { height: 6px; border-radius: 999px; background: var(--grid); overflow: hidden; margin-top: 6px; }
+.meter > i { display: block; height: 100%; border-radius: 999px; width: 0; transition: width .6s ease-out; }
+
+.h2 { font-size: 17px; font-weight: 600; margin: 8px 0 0; display: flex; align-items: center; gap: 10px; }
+.h2::before { content: ''; width: 4px; height: 1.1em; border-radius: 2px; background: var(--pt-red); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr)); gap: var(--gap); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; min-width: 0; }
+.card h3 { font-size: 16px; font-weight: 600; margin: 0 0 14px; }
+.note { font-size: 12px; color: var(--muted); margin: -10px 0 14px; }
+.chart { position: relative; min-height: 290px; }
+.tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(16,24,40,.12); padding: 6px 10px; font-size: 12px; white-space: nowrap; z-index: 2; font-variant-numeric: tabular-nums; opacity: 0; }
+.tip .t { color: var(--muted); margin-bottom: 2px; }
+.tip .s { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+
+.bl { display: flex; flex-direction: column; gap: 10px; }
+.bl-row { display: grid; grid-template-columns: minmax(7rem, 32%) minmax(0, 1fr) 6.5rem; gap: 10px; align-items: center; }
+.bl-name { font-size: 12px; line-height: 1.25; min-width: 0; }
+.bl-name span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bl-sub { color: var(--muted); }
+.bl-track { position: relative; height: 18px; }
+.bl-cuota { position: absolute; left: 0; top: 0; bottom: 0; background: var(--soft); opacity: .35; border-radius: 6px; }
+.bl-cap { position: absolute; left: 0; top: 4px; bottom: 4px; border-radius: 6px; transition: width .6s ease-out; }
+.bl-goal { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--fg); border-radius: 1px; }
+.bl-val { text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.bl-val b { font-size: 14px; display: block; }
+.bl-val span { color: var(--muted); }
+@media (max-width: 560px) { .bl-row { grid-template-columns: minmax(0, 1fr) 6.5rem; } .bl-track { grid-column: 1 / -1; grid-row: 2; } }
+
+.s-ok { background: var(--ok) !important; } .s-warn { background: var(--warn) !important; } .s-bad { background: var(--bad) !important; } .s-none { background: var(--soft) !important; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #fff; margin-right: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); align-items: center; }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.chip { all: unset; cursor: pointer; font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); }
+.chip[aria-pressed=true] { background: var(--pt-blue); color: #fff; border-color: var(--pt-blue); }
+
+.hb { display: flex; flex-direction: column; gap: 10px; }
+.hb-row { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem; gap: 4px 10px; align-items: center; font-size: 12px; }
+.hb-lab { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hb-lab small { color: var(--muted); margin-left: 6px; }
+.hb-val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.hb-bar { grid-column: 1 / -1; height: 8px; border-radius: 999px; background: var(--grid); overflow: hidden; }
+.hb-bar > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--pt-navy), var(--pt-blue)); }
+.hb-rank { display: inline-block; min-width: 1.4em; color: var(--pt-red); font-weight: 700; }
+
+.ng-bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--grid); gap: 2px; margin-bottom: 14px; }
+.ng-bar > i { display: block; height: 100%; }
+.ng-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 10px; }
+.ng-tile { border: 1px solid var(--line); border-top: 4px solid; border-radius: var(--r); padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+.ng-name { font-size: 12px; color: var(--muted); }
+.ng-pct { font-family: var(--serif); font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ng-val { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.search { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); font: inherit; margin-bottom: 10px; }
+.tablebox { max-height: 520px; overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+th { position: sticky; top: 0; background: var(--panel); text-align: left; border-bottom: 2px solid var(--pt-navy); padding: 8px 10px; font-weight: 600; white-space: nowrap; }
+th.num, td.num { text-align: right; }
+td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+td small { display: block; color: var(--muted); }
+td.hora { white-space: nowrap; color: var(--muted); }
+tbody tr:hover td { background: #f1f6fc; }
+@media (max-width: 720px) { .hide-sm { display: none; } }
+.alert { border-left: 4px solid var(--warn); }
+.alert ul { margin: 0; padding-left: 1.2em; font-size: 12px; }
+.foot { font-size: 12px; color: var(--muted); margin: 0; text-align: center; }
+.chart svg text { font-family: var(--sans); }
+@media print { body { background: #fff; } .search, .chips { display: none; } .card, .kpi { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="gsf">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Pintuco · Corferias, Bogotá · 5 al 7 de noviembre</p>
+      <h1 class="title">Gran Salón Ferretero 2026</h1>
+      <p class="sub">Trazabilidad de captura frente a la cuota de cada distribuidor</p>
+      <p class="take">Llevamos <b id="tCap">—</b> en <b id="tPed">—</b> pedidos, el <b id="tCum">—</b> de la cuota del salón. Faltan <b id="tFal">—</b> por cerrar.</p>
+      <div class="days">
+        <span class="day" data-day="2026-11-05">Jue 5 nov</span>
+        <span class="day" data-day="2026-11-06">Vie 6 nov</span>
+        <span class="day" data-day="2026-11-07">Sáb 7 nov</span>
+      </div>
+      <div class="corte">Último pedido registrado: <span id="corte">—</span></div>
+    </div>
+    <div class="ring" id="ring"></div>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi accent"><span class="kpi-label">Captura total</span><span class="kpi-val" id="kCap">—</span><span class="kpi-note">de <span id="kCuo">—</span> de cuota</span></div>
+    <div class="kpi"><span class="kpi-label">Cumplimiento</span><span class="kpi-val" id="kCum">—</span><div class="meter"><i id="kMeter"></i></div></div>
+    <div class="kpi"><span class="kpi-label">Faltante para la cuota</span><span class="kpi-val" id="kFal">—</span><span class="kpi-note">Suma de lo que le falta a cada distribuidor</span></div>
+    <div class="kpi"><span class="kpi-label">Pedidos</span><span class="kpi-val" id="kPed">—</span><span class="kpi-note">Ticket promedio <span id="kTic">—</span></span></div>
+    <div class="kpi"><span class="kpi-label">Clientes ferreteros</span><span class="kpi-val" id="kCli">—</span><span class="kpi-note">Con al menos un pedido</span></div>
+    <div class="kpi"><span class="kpi-label">Distribuidores con pedido</span><span class="kpi-val"><span id="kCon">—</span> <span style="font-size:14px;color:var(--muted)">de <span id="kDist">—</span></span></span><span class="kpi-note"><span id="kCumpl">—</span> ya pasaron su cuota</span></div>
+  </section>
+
+  <section class="card alert" id="sinCruceCard" hidden>
+    <h3>Capturas que no cruzan con la cuota</h3>
+    <p class="note">Estos distribuidores llegaron en la captura pero no coinciden con ninguno de la cuota, así que no suman al cumplimiento.</p>
+    <ul id="sinCruce"></ul>
+  </section>
+
+  <h2 class="h2">Ritmo GSF 2026</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Captura por día y acumulado frente a la cuota</h3>
+      <p class="note">Barras: lo capturado cada día. Línea: el acumulado. Punteada roja: la cuota total del salón.</p>
+      <div class="chart" id="chartDia"></div>
+    </div>
+    <div class="card">
+      <h3>Hora a hora</h3>
+      <p class="note">Captura por hora de Bogotá en el día elegido. Línea: acumulado del día.</p>
+      <div class="chips">
+        <button class="chip" data-dia="2026-11-05">Jue 5</button>
+        <button class="chip" data-dia="2026-11-06">Vie 6</button>
+        <button class="chip" data-dia="2026-11-07">Sáb 7</button>
+      </div>
+      <div class="chart" id="chartHora" style="min-height:250px"></div>
+    </div>
+  </div>
+
+  <h2 class="h2">Cuota vs captura por distribuidor</h2>
+  <div class="legend" id="leyenda"></div>
+  <div class="grid">
+    <div class="card" style="grid-column: 1 / -1">
+      <h3>Avance de cada distribuidor</h3>
+      <p class="note">Barra gris: cuota. Barra de color: captura, según el semáforo. Todas en la misma escala; la marca vertical es el 100% de su cuota.</p>
+      <div class="bl" id="bulletDist"></div>
+    </div>
+    <div class="card">
+      <h3>Por asesor Pintuco</h3>
+      <p class="note">Cuota y captura sumadas de los distribuidores de cada asesor.</p>
+      <div class="bl" id="bulletAse"></div>
+    </div>
+    <div class="card">
+      <h3>Concentración de la venta</h3>
+      <p class="note">Peso de cada distribuidor en la captura total del salón. La franja amarilla es su cumplimiento de cuota.</p>
+      <div class="chart" id="mix" style="min-height:260px"></div>
+    </div>
+  </div>
+
+  <h2 class="h2">Qué se está vendiendo y quién lo vende</h2>
+  <div class="card">
+    <h3>Venta por negocio</h3>
+    <p class="note">Peso de cada negocio en la captura, en plata y en porcentaje.</p>
+    <div id="negocios"></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Ranking de marcas</h3>
+      <div class="hb" id="marcas"></div>
+    </div>
+    <div class="card">
+      <h3>Ranking de vendedores</h3>
+      <p class="note">Vendedores de los distribuidores, por valor capturado. Debajo: distribuidor, pedidos y clientes atendidos.</p>
+      <div class="hb" id="vendedores"></div>
+    </div>
+  </div>
+
+  <h2 class="h2">Trazabilidad pedido a pedido</h2>
+  <div class="card">
+    <p class="note" style="margin-top:0">Cada pedido de la captura, del más reciente al más antiguo. Un pedido es un envío del vendedor (misma hora de registro).</p>
+    <input class="search" id="buscar" type="search" placeholder="Buscar cliente, vendedor, distribuidor o ciudad…">
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Hora</th><th>Distribuidor</th><th class="hide-sm">Vendedor</th><th>Cliente ferretero</th><th class="num hide-sm">Ref.</th><th class="num hide-sm">Unid.</th><th class="num">Valor</th></tr></thead>
+        <tbody id="feed"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="foot">Trade Marketing 2026. Fuente: DataLake GSF - Cifras en COP · <span id="revisado"></span></p>
+</div>
+
+<script>
+(() => {
+  const OK = 1, WARN = 0.7; // semáforo: cumplido desde el 100 %, alerta desde el 70 %
+  const DIAS = ['2026-11-05', '2026-11-06', '2026-11-07'];
+  const BLUE = '#0050a0', NAVY = '#003a73', RED = '#e31e24';
+  const COL_NEG = {'Decorativo': BLUE, 'Construcción': RED, 'Señalización': '#f2a900', 'Herramientas': '#2e9e6b'};
+  const nf0 = new Intl.NumberFormat('es-CO', {maximumFractionDigits: 0});
+  const nf1 = new Intl.NumberFormat('es-CO', {maximumFractionDigits: 1});
+  const money = (v) => '$' + nf0.format(Math.round(+v || 0));
+  const mill = (v) => { v = +v || 0; if (v === 0) return '$0'; const m = v / 1e6; return '$' + (Math.abs(m) < 10 ? nf1 : nf0).format(m) + 'M'; };
+  const pct = (v) => nf1.format((+v || 0) * 100) + '%';
+  const cls = (r) => r.captura <= 0 ? 's-none' : r.cumplimiento >= OK ? 's-ok' : r.cumplimiento >= WARN ? 's-warn' : 's-bad';
+  const hoy = () => new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Bogota'}).format(new Date());
+  const horaAhora = () => +new Intl.DateTimeFormat('en-US', {timeZone: 'America/Bogota', hour: 'numeric', hourCycle: 'h23'}).format(new Date());
+  const fmtDia = (d) => { const dt = new Date(d + 'T12:00:00Z'); return ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'][dt.getUTCDay()] + ' ' + dt.getUTCDate() + ' nov'; };
+  const hhmm = (s) => { const h = +s.slice(11, 13), m = s.slice(14, 16); return (h % 12 || 12) + ':' + m + (h < 12 ? ' a. m.' : ' p. m.'); };
+  const corto = (s) => s.replace(/\s+(S\.?A\.?S\.?|SAS|LTDA|Y CIA.*)\.?$/i, '');
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const d0 = hoy();
+  let diaSel = DIAS.includes(d0) ? d0 : (d0 > DIAS[2] ? DIAS[2] : DIAS[0]);
+  let M = null, filtro = '';
+
+  // ---------- Cálculos ----------
+  function calcular(cuotas, captura) {
+    const key = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const mapa = new Map();
+    cuotas.forEach((c) => { c.cuota = +c.cuota || 0; mapa.set(key(c.distribuidor), c.distribuidor); if (c.nombre_captura) mapa.set(key(c.nombre_captura), c.distribuidor); });
+    // Quita líneas repetidas: misma línea registrada otra vez antes de 2 minutos.
+    const ms = (s) => new Date(s.replace(' ', 'T') + 'Z').getTime();
+    const visto = new Map();
+    const lineas = captura.slice().sort((a, b) => a.fecha_hora.localeCompare(b.fecha_hora)).filter((r) => {
+      const k = [key(r.distribuidor), r.cliente_id, r.sku, r.cantidad, r.valor].join('|');
+      const antes = visto.get(k), ahora = ms(r.fecha_hora);
+      if (antes !== undefined && ahora - antes > 0 && ahora - antes < 120000) return false;
+      visto.set(k, ahora); return true;
+    }).map((r) => ({...r, cantidad: +r.cantidad || 0, valor: +r.valor || 0, hora: +r.hora, dist: mapa.get(key(r.distribuidor)) || null}));
+    const ok = lineas.filter((l) => l.dist);
+    const sinCruce = d3.rollups(lineas.filter((l) => !l.dist), (v) => d3.sum(v, (l) => l.valor), (l) => l.distribuidor);
+    const pedidos = d3.rollups(ok, (v) => ({fecha_hora: v[0].fecha_hora, dia: v[0].dia, hora: v[0].hora, distribuidor: v[0].dist, vendedor: v[0].vendedor, cliente: v[0].cliente, cliente_id: v[0].cliente_id, ciudad: v[0].ciudad, items: v.length, unidades: d3.sum(v, (l) => l.cantidad), valor: d3.sum(v, (l) => l.valor)}), (l) => l.dist + '|' + l.fecha_hora + '|' + l.vendedor)
+      .map(([, p]) => p).sort((a, b) => b.fecha_hora.localeCompare(a.fecha_hora));
+    const avance = cuotas.map((c) => {
+      const mios = pedidos.filter((p) => p.distribuidor === c.distribuidor);
+      const captura = d3.sum(mios, (p) => p.valor);
+      const cumplimiento = c.cuota ? captura / c.cuota : 0;
+      return {distribuidor: c.distribuidor, asesor: c.asesor, cuota: c.cuota, captura, cumplimiento, faltante: Math.max(c.cuota - captura, 0), pedidos: mios.length};
+    });
+    const cuota = d3.sum(avance, (r) => r.cuota), cap = d3.sum(avance, (r) => r.captura);
+    const tot = {cuota, captura: cap, cumplimiento: cuota ? cap / cuota : 0, faltante: d3.sum(avance, (r) => r.faltante), distribuidores: avance.length,
+      con_pedido: avance.filter((r) => r.captura > 0).length, cumplidos: avance.filter((r) => r.cumplimiento >= 1).length,
+      pedidos: pedidos.length, clientes: new Set(pedidos.map((p) => p.cliente_id)).size, ticket: pedidos.length ? cap / pedidos.length : 0,
+      ultimo: pedidos.length ? d3.max(pedidos, (p) => p.fecha_hora) : ''};
+    let acum = 0;
+    const porDia = DIAS.map((dia) => { const v = d3.sum(pedidos.filter((p) => p.dia === dia), (p) => p.valor); acum += v; return {dia, valor: v, acumulado: acum, cuota}; });
+    const horas = d3.range(Math.min(8, d3.min(pedidos, (p) => p.hora) ?? 8), Math.max(19, d3.max(pedidos, (p) => p.hora) ?? 19) + 1);
+    const porHora = DIAS.flatMap((dia) => { let a = 0; return horas.map((hora) => { const v = pedidos.filter((p) => p.dia === dia && p.hora === hora); a += d3.sum(v, (p) => p.valor); return {dia, hora, valor: d3.sum(v, (p) => p.valor), pedidos: v.length, acumulado: a}; }); });
+    const porAsesor = d3.rollups(avance, (v) => ({cuota: d3.sum(v, (r) => r.cuota), captura: d3.sum(v, (r) => r.captura), distribuidores: v.length}), (r) => r.asesor)
+      .map(([asesor, t]) => ({asesor, ...t, cumplimiento: t.cuota ? t.captura / t.cuota : 0})).sort((a, b) => b.cuota - a.cuota);
+    const totalOk = d3.sum(ok, (l) => l.valor);
+    const marcas = d3.rollups(ok, (v) => ({unidades: d3.sum(v, (l) => l.cantidad), referencias: new Set(v.map((l) => l.sku)).size, valor: d3.sum(v, (l) => l.valor)}), (l) => l.marca)
+      .map(([marca, t]) => ({marca, ...t, participacion: totalOk ? t.valor / totalOk : 0})).sort((a, b) => b.valor - a.valor);
+    const nombres = ['Decorativo', 'Construcción', 'Señalización', 'Herramientas'];
+    const extra = [...new Set(ok.map((l) => l.negocio))].filter((n) => !nombres.includes(n));
+    const negocios = nombres.concat(extra).map((negocio) => { const v = d3.sum(ok.filter((l) => l.negocio === negocio), (l) => l.valor); return {negocio, valor: v, participacion: totalOk ? v / totalOk : 0}; });
+    const vendedores = d3.rollups(pedidos, (v) => ({distribuidor: v[0].distribuidor, pedidos: v.length, clientes: new Set(v.map((p) => p.cliente_id)).size, valor: d3.sum(v, (p) => p.valor)}), (p) => p.vendedor)
+      .map(([vendedor, t]) => ({vendedor, ...t})).sort((a, b) => b.valor - a.valor);
+    return {tot, avance, pedidos, porDia, porHora, porAsesor, marcas, negocios, vendedores, sinCruce};
+  }
+
+  // ---------- Dibujo ----------
+  const tooltip = (box) => d3.select(box).append('div').attr('class', 'tip');
+  const place = (tip, box, ev, dy) => { const [px, py] = d3.pointer(ev, box); const tw = tip.node().offsetWidth; tip.style('left', Math.min(Math.max(px + 12, 0), box.clientWidth - tw - 4) + 'px').style('top', Math.max(py - dy, 0) + 'px').style('opacity', 1); };
+  const leftMargin = (svg, labels) => { const p = svg.append('text').style('font-size', '11px'); const w = d3.max(labels, (s) => { p.text(s); return p.node().getComputedTextLength(); }) || 0; p.remove(); return w + 10; };
+
+  function kpis() {
+    const t = M.tot;
+    $('tCap').textContent = mill(t.captura); $('tPed').textContent = nf0.format(t.pedidos); $('tCum').textContent = pct(t.cumplimiento); $('tFal').textContent = mill(t.faltante);
+    $('corte').textContent = t.ultimo ? fmtDia(t.ultimo.slice(0, 10)) + ', ' + hhmm(t.ultimo) : 'sin pedidos aún';
+    $('kCap').textContent = mill(t.captura); $('kCuo').textContent = mill(t.cuota); $('kCum').textContent = pct(t.cumplimiento); $('kFal').textContent = mill(t.faltante);
+    $('kPed').textContent = nf0.format(t.pedidos); $('kTic').textContent = mill(t.ticket); $('kCli').textContent = nf0.format(t.clientes);
+    $('kCon').textContent = t.con_pedido; $('kDist').textContent = t.distribuidores; $('kCumpl').textContent = t.cumplidos;
+    $('kMeter').style.width = Math.min(t.cumplimiento, 1) * 100 + '%'; $('kMeter').className = cls(t);
+    const h = hoy();
+    document.querySelectorAll('.day').forEach((d) => { d.classList.toggle('today', d.dataset.day === h); d.classList.toggle('past', d.dataset.day < h); });
+    $('sinCruceCard').hidden = !M.sinCruce.length;
+    $('sinCruce').replaceChildren(...M.sinCruce.map(([d, v]) => el('li', '', d + ' — ' + money(v))));
+    $('leyenda').replaceChildren(...[['s-ok', '≥ ' + pct(OK), 'Cumplido'], ['s-warn', pct(WARN) + ' a ' + pct(OK - 0.001), 'En camino'], ['s-bad', '< ' + pct(WARN), 'Rezagado'], ['s-none', '0', 'Sin pedido']]
+      .map(([c, r, n]) => { const s = el('span'); s.append(el('span', 'pill ' + c, n), r); return s; }));
+  }
+
+  function ring() {
+    const box = $('ring'); box.replaceChildren(); const t = M.tot;
+    const svg = d3.select(box).append('svg').attr('viewBox', '0 0 170 170');
+    const arc = d3.arc().innerRadius(64).outerRadius(78).cornerRadius(7).startAngle(0);
+    const g0 = svg.append('g').attr('transform', 'translate(85,85)');
+    g0.append('path').attr('d', arc({endAngle: 2 * Math.PI})).attr('fill', 'rgba(255,255,255,.15)');
+    const v = Math.min(t.cumplimiento, 1);
+    if (v > 0) g0.append('path').attr('d', arc({endAngle: 2 * Math.PI * Math.max(v, 0.012)})).attr('fill', '#fff');
+    if (t.cumplimiento > 1) g0.append('path').attr('d', d3.arc().innerRadius(58).outerRadius(62).startAngle(0)({endAngle: 2 * Math.PI * Math.min(t.cumplimiento - 1, 1)})).attr('fill', '#ffd166');
+    g0.append('text').attr('text-anchor', 'middle').attr('y', 8).attr('fill', '#fff').style('font-family', 'var(--serif)').style('font-size', '30px').text(pct(t.cumplimiento));
+    g0.append('text').attr('text-anchor', 'middle').attr('y', 30).attr('fill', 'rgba(255,255,255,.8)').style('font-size', '11px').text('de la cuota');
+  }
+
+  function chartDia() {
+    const box = $('chartDia'); box.replaceChildren();
+    const rows = M.porDia, W = Math.max(box.clientWidth || 600, 280), H = 290, cuota = M.tot.cuota;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const y = d3.scaleLinear([0, Math.max(cuota, d3.max(rows, (r) => r.acumulado) || 0) * 1.12 || 1], [H - 34, 18]).nice();
+    const ticks = y.ticks(5), ml = leftMargin(svg, ticks.map(mill));
+    const x = d3.scaleBand(rows.map((r) => r.dia), [ml, W - 12]).padding(0.38);
+    ticks.forEach((t) => { svg.append('line').attr('x1', ml).attr('x2', W - 12).attr('y1', y(t)).attr('y2', y(t)).attr('stroke', 'var(--grid)'); svg.append('text').attr('x', ml - 8).attr('y', y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '11px').text(mill(t)); });
+    svg.append('line').attr('x1', ml).attr('x2', W - 12).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--axis)');
+    rows.forEach((r) => svg.append('text').attr('x', x(r.dia) + x.bandwidth() / 2).attr('y', H - 12).attr('text-anchor', 'middle').attr('fill', 'var(--muted)').style('font-size', '12px').text(fmtDia(r.dia)));
+    svg.append('line').attr('x1', ml).attr('x2', W - 12).attr('y1', y(cuota)).attr('y2', y(cuota)).attr('stroke', RED).attr('stroke-width', 1.5).attr('stroke-dasharray', '6 4');
+    svg.append('text').attr('x', W - 14).attr('y', y(cuota) - 6).attr('text-anchor', 'end').attr('fill', RED).style('font-size', '11px').style('font-weight', 600).text('Cuota ' + mill(cuota));
+    const bw = Math.min(x.bandwidth(), 64);
+    rows.forEach((r) => {
+      const bx = x(r.dia) + (x.bandwidth() - bw) / 2;
+      svg.append('rect').attr('x', bx).attr('width', bw).attr('y', y(r.valor)).attr('height', Math.max(y(0) - y(r.valor), 0)).attr('rx', 4).attr('fill', BLUE).attr('opacity', .85);
+      if (r.valor > 0) svg.append('text').attr('x', bx + bw / 2).attr('y', y(r.valor) - 8).attr('text-anchor', 'middle').attr('fill', 'var(--fg)').style('font-size', '11px').style('font-weight', 600).text(mill(r.valor));
+    });
+    const vis = rows.filter((r) => r.dia <= hoy() || r.valor > 0), cx = (r) => x(r.dia) + x.bandwidth() / 2;
+    if (vis.length) {
+      svg.append('path').attr('d', d3.line().x(cx).y((r) => y(r.acumulado))(vis)).attr('fill', 'none').attr('stroke', NAVY).attr('stroke-width', 2.5).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      vis.forEach((r) => svg.append('circle').attr('cx', cx(r)).attr('cy', y(r.acumulado)).attr('r', 4.5).attr('fill', '#fff').attr('stroke', NAVY).attr('stroke-width', 2.5));
+    }
+    const tip = tooltip(box);
+    rows.forEach((r) => svg.append('rect').attr('x', x(r.dia) - x.step() * x.paddingInner() / 2).attr('width', x.step()).attr('y', 0).attr('height', H - 30).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        tip.html(''); tip.append('div').attr('class', 't').text(fmtDia(r.dia));
+        const line = (c, n, v) => { const l = tip.append('div'); l.append('span').attr('class', 's').style('background', c); l.append('span').text(n + ': ' + v); };
+        line(BLUE, 'Captura del día', money(r.valor)); line(NAVY, 'Acumulado', money(r.acumulado) + ' (' + pct(r.cuota ? r.acumulado / r.cuota : 0) + ')'); line(RED, 'Cuota', money(r.cuota));
+        place(tip, box, ev, 70);
+      }).on('mouseleave', () => tip.style('opacity', 0)));
+  }
+
+  function chartHora() {
+    const box = $('chartHora'); box.replaceChildren();
+    document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.dia === diaSel)));
+    const rows = M.porHora.filter((r) => r.dia === diaSel);
+    const W = Math.max(box.clientWidth || 500, 280), H = 250;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const y = d3.scaleLinear([0, (d3.max(rows, (r) => Math.max(r.valor, r.acumulado)) || 1) * 1.15], [H - 30, 14]).nice();
+    const ticks = y.ticks(4), ml = leftMargin(svg, ticks.map(mill));
+    const x = d3.scaleBand(rows.map((r) => r.hora), [ml, W - 8]).padding(0.25);
+    ticks.forEach((t) => { svg.append('line').attr('x1', ml).attr('x2', W - 8).attr('y1', y(t)).attr('y2', y(t)).attr('stroke', 'var(--grid)'); svg.append('text').attr('x', ml - 8).attr('y', y(t) + 4).attr('text-anchor', 'end').attr('fill', 'var(--muted)').style('font-size', '11px').text(mill(t)); });
+    svg.append('line').attr('x1', ml).attr('x2', W - 8).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--axis)');
+    const every = x.bandwidth() < 26 ? 2 : 1;
+    rows.forEach((r, i) => { if (i % every === 0) svg.append('text').attr('x', x(r.hora) + x.bandwidth() / 2).attr('y', H - 10).attr('text-anchor', 'middle').attr('fill', 'var(--muted)').style('font-size', '11px').text((r.hora % 12 || 12) + (r.hora < 12 ? 'am' : 'pm')); });
+    rows.forEach((r) => svg.append('rect').attr('x', x(r.hora)).attr('width', x.bandwidth()).attr('y', y(r.valor)).attr('height', Math.max(y(0) - y(r.valor), 0)).attr('rx', 3).attr('fill', BLUE).attr('opacity', .85));
+    const fs = x.bandwidth() < 34 ? '9px' : '11px', cx = (r) => x(r.hora) + x.bandwidth() / 2;
+    rows.forEach((r) => { if (r.valor <= 0) return; const dentro = y(0) - y(r.valor) > 22; svg.append('text').attr('x', cx(r)).attr('y', dentro ? y(r.valor) + 14 : y(r.valor) - 5).attr('text-anchor', 'middle').attr('fill', dentro ? '#fff' : BLUE).style('font-size', fs).style('font-weight', 700).text(mill(r.valor)); });
+    const lim = diaSel < hoy() ? 99 : diaSel > hoy() ? -1 : Math.max(horaAhora(), d3.max(rows.filter((r) => r.valor > 0), (r) => r.hora) ?? -1);
+    const vis = rows.filter((r) => r.hora <= lim);
+    if (vis.length) {
+      svg.append('path').attr('d', d3.line().x(cx).y((r) => y(r.acumulado))(vis)).attr('fill', 'none').attr('stroke', NAVY).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      vis.forEach((r, i) => {
+        if (r.acumulado <= 0) return;
+        const last = i === vis.length - 1;
+        svg.append('circle').attr('cx', cx(r)).attr('cy', y(r.acumulado)).attr('r', last ? 4 : 3).attr('fill', last ? NAVY : '#fff').attr('stroke', NAVY).attr('stroke-width', 2);
+        if ((vis[i - 1] && vis[i - 1].acumulado === r.acumulado) || r.acumulado === r.valor) return;
+        const lab = svg.append('text').attr('x', cx(r) - 6).attr('y', y(r.acumulado) - 8).attr('text-anchor', 'end').attr('fill', NAVY).style('font-size', fs).style('font-weight', 600).text(mill(r.acumulado));
+        if (cx(r) - 6 - lab.node().getComputedTextLength() < ml) lab.attr('text-anchor', 'start').attr('x', cx(r) + 6);
+      });
+    }
+    const tip = tooltip(box);
+    rows.forEach((r) => svg.append('rect').attr('x', x(r.hora) - x.step() * x.paddingInner() / 2).attr('width', x.step()).attr('y', 0).attr('height', H - 26).attr('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        tip.html(''); tip.append('div').attr('class', 't').text(fmtDia(r.dia) + ', ' + (r.hora % 12 || 12) + ':00 ' + (r.hora < 12 ? 'a. m.' : 'p. m.'));
+        tip.append('div').text('Captura: ' + money(r.valor) + ' en ' + r.pedidos + (r.pedidos === 1 ? ' pedido' : ' pedidos'));
+        tip.append('div').text('Acumulado del día: ' + money(r.acumulado));
+        place(tip, box, ev, 60);
+      }).on('mouseleave', () => tip.style('opacity', 0)));
+  }
+
+  function bullets(box, rows, nameKey, subFn) {
+    box.replaceChildren();
+    const max = d3.max(rows, (r) => Math.max(r.cuota, r.captura)) || 1;
+    rows.forEach((r) => {
+      const row = el('div', 'bl-row'), nm = el('div', 'bl-name'), a = el('span', '', r[nameKey]); a.title = r[nameKey];
+      nm.append(a, el('span', 'bl-sub', subFn(r)));
+      const tr = el('div', 'bl-track'), cu = el('div', 'bl-cuota'), ca = el('div', 'bl-cap ' + cls(r)), go = el('div', 'bl-goal');
+      cu.style.width = (r.cuota / max * 100) + '%'; ca.style.width = (r.captura > 0 ? Math.max(r.captura / max * 100, 0.6) : 0) + '%'; go.style.left = `calc(${r.cuota / max * 100}% - 1px)`;
+      tr.append(cu, ca, go);
+      const v = el('div', 'bl-val'); v.append(el('b', '', pct(r.cumplimiento)), el('span', '', mill(r.captura) + ' / ' + mill(r.cuota)));
+      row.append(nm, tr, v); box.append(row);
+    });
+  }
+
+  function mix() {
+    const box = $('mix'); box.replaceChildren();
+    const rows = M.avance.filter((r) => r.captura > 0).sort((a, b) => b.captura - a.captura);
+    if (!rows.length) return;
+    const total = d3.sum(rows, (r) => r.captura), W = Math.max(box.clientWidth || 400, 260), H = 260;
+    const svg = d3.select(box).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const root = d3.treemap().size([W, H]).paddingInner(3).round(true)(d3.hierarchy({children: rows}).sum((r) => r.captura || 0));
+    const shade = d3.interpolateRgb('#7fb0de', NAVY), tip = tooltip(box);
+    root.leaves().forEach((n) => {
+      const r = n.data, w = n.x1 - n.x0, h = n.y1 - n.y0;
+      const gg = svg.append('g').attr('transform', `translate(${n.x0},${n.y0})`);
+      gg.append('rect').attr('width', w).attr('height', h).attr('rx', 4).attr('fill', shade(Math.min(r.captura / rows[0].captura, 1)));
+      gg.append('rect').attr('y', h - 4).attr('height', 4).attr('width', w * Math.min(r.cumplimiento, 1)).attr('fill', '#ffd166');
+      if (w > 70 && h > 34) {
+        const t = gg.append('text').attr('x', 8).attr('y', 18).attr('fill', '#fff').style('font-size', '11px').style('font-weight', 600).text(corto(r.distribuidor).replace(/^DEPOSITO\s+/i, 'Dep. '));
+        while (t.node().getComputedTextLength() > w - 14 && t.text().length > 4) t.text(t.text().slice(0, -2) + '…');
+        gg.append('text').attr('x', 8).attr('y', 33).attr('fill', 'rgba(255,255,255,.85)').style('font-size', '11px').text(pct(r.captura / total) + ' · ' + mill(r.captura));
+      }
+      gg.on('mousemove', (ev) => {
+        tip.html(''); tip.append('div').attr('class', 't').text(r.distribuidor);
+        tip.append('div').text('Captura: ' + money(r.captura) + ' (' + pct(r.captura / total) + ' de la venta)');
+        tip.append('div').text('Cumplimiento de su cuota: ' + pct(r.cumplimiento));
+        place(tip, box, ev, 60);
+      }).on('mouseleave', () => tip.style('opacity', 0));
+    });
+  }
+
+  function negocios() {
+    const box = $('negocios'), bar = el('div', 'ng-bar'), tiles = el('div', 'ng-tiles');
+    M.negocios.forEach((r) => {
+      if (r.valor > 0) { const s = el('i'); s.style.width = r.participacion * 100 + '%'; s.style.background = COL_NEG[r.negocio] || 'var(--soft)'; s.title = r.negocio + ': ' + pct(r.participacion); bar.append(s); }
+      const t = el('div', 'ng-tile'); t.style.borderTopColor = COL_NEG[r.negocio] || 'var(--soft)';
+      t.append(el('span', 'ng-name', r.negocio), el('span', 'ng-pct', pct(r.participacion)), el('span', 'ng-val', money(r.valor)));
+      tiles.append(t);
+    });
+    box.replaceChildren(bar, tiles);
+  }
+
+  function hbars(box, rows, label, sub, rank) {
+    box.replaceChildren();
+    const max = d3.max(rows, (r) => r.valor) || 1;
+    rows.forEach((r, i) => {
+      const row = el('div', 'hb-row'), l = el('div', 'hb-lab'); l.title = label(r);
+      if (rank) l.append(el('span', 'hb-rank', String(i + 1)));
+      l.append(label(r), el('small', '', sub(r)));
+      const b = el('div', 'hb-bar'), fill = el('i'); fill.style.width = (r.valor / max * 100) + '%'; b.append(fill);
+      row.append(l, el('div', 'hb-val', mill(r.valor)), b); box.append(row);
+    });
+  }
+
+  function feed() {
+    const q = filtro.trim().toLowerCase();
+    const td = (text, c, small) => { const e = el('td', c); e.append(text); if (small) e.append(el('small', '', small)); return e; };
+    $('feed').replaceChildren(...M.pedidos.filter((p) => !q || [p.cliente, p.vendedor, p.distribuidor, p.ciudad].join(' ').toLowerCase().includes(q)).map((p) => {
+      const tr = el('tr');
+      tr.append(td(hhmm(p.fecha_hora), 'hora', fmtDia(p.dia)), td(corto(p.distribuidor)), td(p.vendedor, 'hide-sm'), td(p.cliente, '', p.ciudad), td(String(p.items), 'num hide-sm'), td(nf0.format(p.unidades), 'num hide-sm'), td(money(p.valor), 'num'));
+      return tr;
+    }));
+  }
+
+  function render() {
+    if (!M) return;
+    kpis(); ring(); chartDia(); chartHora();
+    bullets($('bulletDist'), M.avance.slice().sort((a, b) => b.cuota - a.cuota), 'distribuidor', (r) => r.asesor + ' · ' + r.pedidos + (r.pedidos === 1 ? ' pedido' : ' pedidos'));
+    bullets($('bulletAse'), M.porAsesor, 'asesor', (r) => r.distribuidores + (r.distribuidores === 1 ? ' distribuidor' : ' distribuidores'));
+    mix(); negocios();
+    hbars($('marcas'), M.marcas, (r) => r.marca, (r) => pct(r.participacion) + ' · ' + r.referencias + (r.referencias === 1 ? ' ref.' : ' refs.') + ' · ' + nf0.format(r.unidades) + ' und.', true);
+    hbars($('vendedores'), M.vendedores, (r) => r.vendedor, (r) => corto(r.distribuidor) + ' · ' + r.pedidos + ' ped. · ' + r.clientes + ' cli.', true);
+    feed();
+  }
+
+  async function cargar() {
+    const v = '?v=' + Date.now();
+    const [cuotas, captura, meta] = await Promise.all([d3.csv('data/cuotas.csv' + v), d3.csv('data/captura.csv' + v), d3.json('data/meta.json' + v).catch(() => null)]);
+    M = calcular(cuotas, captura);
+    if (meta && meta.revisado) $('revisado').textContent = 'Datos revisados: ' + fmtDia(meta.revisado.slice(0, 10)) + ', ' + hhmm(meta.revisado + ':00');
+    render();
+  }
+
+  document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => { diaSel = b.dataset.dia; chartHora(); }));
+  $('buscar').addEventListener('input', (e) => { filtro = e.target.value; feed(); });
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render, 150); });
+  cargar();
+  setInterval(cargar, 5 * 60 * 1000); // vuelve a leer los datos cada 5 minutos
+})();
+</script>
+</body>
+</html>
