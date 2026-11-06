@@ -116,7 +116,7 @@ tbody tr:hover td { background: #f1f6fc; }
 .alert ul { margin: 0; padding-left: 1.2em; font-size: 12px; }
 .foot { font-size: 12px; color: var(--muted); margin: 0; text-align: center; }
 .chart svg text { font-family: var(--sans); }
-@media print { body { background: #fff; } .search, .chips { display: none; } .card, .kpi { break-inside: avoid; } }
+@media print { @page { size: A4 landscape; margin: 10mm; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } body { background: #fff; } .gsf { max-width: none; padding: 0; } .search, .chips, .dl { display: none; } .card, .kpi, .bl-row, .hb-row, tr { break-inside: avoid; } .tablebox { max-height: none; overflow: visible; } .tip { display: none; } }
 </style>
 </head>
 <body>
