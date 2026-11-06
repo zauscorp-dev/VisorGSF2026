@@ -222,7 +222,7 @@ tbody tr:hover td { background: #f1f6fc; }
     </div>
   </div>
 
-  <p class="foot">Trade Marketing 2026. Fuente: DataLake GSF - Cifras en COP · <span id="revisado"></span></p>
+  <p class="foot">Trade Marketing 2026. Fuente: DataLake GSF - Cifras en COP · <span id="revisado"></span><span id="corrida"></span></p>
 </div>
 
 <script>
@@ -485,7 +485,23 @@ tbody tr:hover td { background: #f1f6fc; }
     feed();
   }
 
+  // Hora de la última corrida de la actualización automática (API pública de GitHub, sin credenciales)
+  async function ultimaCorrida() {
+    try {
+      const r = await fetch('https://api.github.com/repos/zauscorp-dev/VisorGSF2026/actions/workflows/actualizar.yml/runs?per_page=1', {headers: {Accept: 'application/vnd.github+json'}});
+      if (!r.ok) return;
+      const run = (await r.json()).workflow_runs?.[0];
+      if (!run) return;
+      const f = new Date(run.updated_at);
+      const dia = new Intl.DateTimeFormat('en-CA', {timeZone: 'America/Bogota'}).format(f);
+      const hm = new Intl.DateTimeFormat('en-GB', {timeZone: 'America/Bogota', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'}).format(f);
+      const estado = run.status !== 'completed' ? ' (en curso)' : run.conclusion === 'success' ? ' ✓' : ' ✗ (falló)';
+      $('corrida').textContent = ' · Última corrida de actualización: ' + fmtDia(dia) + ', ' + hhmm(dia + ' ' + hm + ':00') + estado;
+    } catch (e) { /* si GitHub no responde, el pie queda solo con la hora de los datos */ }
+  }
+
   async function cargar() {
+    ultimaCorrida();
     const v = '?v=' + Date.now();
     const [cuotas, captura, meta] = await Promise.all([d3.csv('data/cuotas.csv' + v), d3.csv('data/captura.csv' + v), d3.json('data/meta.json' + v).catch(() => null)]);
     M = calcular(cuotas, captura);
